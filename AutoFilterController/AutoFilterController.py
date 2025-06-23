@@ -44,6 +44,7 @@ class AutoFilterController(ControlSurface):
         for param in device.parameters:
             if param.name in ('Frequency', 'Freq', 'Cutoff'):
                 self._selected_parameter = param
+                self._send_midi_feedback(param.value)
                 break
 
     def _on_cutoff_change(self, value):
@@ -55,6 +56,16 @@ class AutoFilterController(ControlSurface):
     def _on_button_press(self, value):
         if value > 0:
             self._select_autofilter(self._current_index + 1)
+
+    def _send_midi_feedback(self, value):
+        if self._selected_parameter:
+            param_range = self._selected_parameter.max - self._selected_parameter.min
+            if param_range == 0:
+                return
+            cc_value = int((value - self._selected_parameter.min) / param_range * 127)
+            cc_value = max(0, min(127, cc_value))  # Clamp
+            status = 0xB0  # MIDI CC on Channel 1
+            self._send_midi((status, 0, cc_value))
 
     def disconnect(self):
         super(AutoFilterController, self).disconnect()
