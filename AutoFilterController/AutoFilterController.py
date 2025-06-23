@@ -9,6 +9,7 @@ class AutoFilterController(ControlSurface):
         self._autofilters = []
         self._current_index = 0
         self._selected_parameter = None
+        self._parameter_listener = None
 
         self._collect_autofilters()
 
@@ -43,7 +44,10 @@ class AutoFilterController(ControlSurface):
         device = self._autofilters[self._current_index]
         for param in device.parameters:
             if param.name in ('Frequency', 'Freq', 'Cutoff'):
+                if self._selected_parameter and self._parameter_listener:
+                    self._parameter_listener.subject = None
                 self._selected_parameter = param
+                self._parameter_listener = self._on_parameter_value_change.subject(param)
                 self._send_midi_feedback(param.value)
                 break
 
@@ -56,6 +60,11 @@ class AutoFilterController(ControlSurface):
     def _on_button_press(self, value):
         if value > 0:
             self._select_autofilter(self._current_index + 1)
+
+    @listens('value')
+    def _on_parameter_value_change(self):
+        if self._selected_parameter:
+            self._send_midi_feedback(self._selected_parameter.value)
 
     def _send_midi_feedback(self, value):
         if self._selected_parameter:
@@ -73,3 +82,5 @@ class AutoFilterController(ControlSurface):
             self._cutoff_control.remove_value_listener(self._on_cutoff_change)
         if self._button_control:
             self._button_control.remove_value_listener(self._on_button_press)
+        if self._parameter_listener:
+            self._parameter_listener.subject = None
