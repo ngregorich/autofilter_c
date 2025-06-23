@@ -1,4 +1,4 @@
-from .AutoFilterController import AutoFilterController
+from .MySurface import MyCustomSurface
 
 def create_instance(c_instance):
-    return AutoFilterController(c_instance)
+    return MyCustomSurface(c_instance)

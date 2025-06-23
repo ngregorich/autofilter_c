@@ -1,0 +1,8 @@
+{
+  "name": "AutoFilterRemoteScript",
+  "version": "1.0.0",
+  "creator": "Custom",
+  "description": "Control Auto Filter cutoff via MIDI CC",
+  "compatible_live_versions": ["11"],
+  "has_control_surface": true
+}
